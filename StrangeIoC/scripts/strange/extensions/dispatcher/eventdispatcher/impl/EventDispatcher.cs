@@ -80,7 +80,7 @@ namespace strange.extensions.dispatcher.eventdispatcher.impl
 			Dispatch (eventType, null);
 		}
 
-		public void Dispatch (object eventType, object data)
+		public virtual void Dispatch (object eventType, object data)
 		{
 			//Scrub the data to make eventType and data conform if possible
 			IEvent evt = conformDataToEvent (eventType, data);

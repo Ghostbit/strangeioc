@@ -158,6 +158,7 @@
 using strange.extensions.command.api;
 using strange.extensions.command.impl;
 using strange.extensions.context.api;
+using strange.extensions.context.impl;
 using strange.extensions.dispatcher.api;
 using strange.extensions.dispatcher.eventdispatcher.api;
 using strange.extensions.dispatcher.eventdispatcher.impl;
@@ -167,9 +168,9 @@ using strange.extensions.sequencer.impl;
 using strange.framework.api;
 using strange.framework.impl;
 
-namespace strange.extensions.context.impl
+namespace Ghostbit.strange
 {
-	public class MVCSContext : CrossContext
+	public class ViewlessContext : CrossContext
 	{
 		/// A Binder that maps Events to Commands
 		public ICommandBinder commandBinder{get;set;}
@@ -184,33 +185,20 @@ namespace strange.extensions.context.impl
 		/// A list of Views Awake before the Context is fully set up.
 		protected static ISemiBinding viewCache = new SemiBinding();
 		
-		public MVCSContext() : base()
+		public ViewlessContext() : base()
 		{}
 
-		/// The recommended Constructor
-		/// Just pass in the instance of your ContextView. Everything will begin automatically.
-		/// Other constructors offer the option of interrupting startup at useful moments.
-		public MVCSContext(object view) : base(view)
-		{
-		}
-
-        public MVCSContext(object view, ContextStartupFlags flags)
-            : base(view, flags)
-		{
-		}
-
-        public MVCSContext(object view, bool autoMapping)
-            : base(view, autoMapping)
-		{
-		}
-		
+        public ViewlessContext(ContextStartupFlags flags)
+            : base(null, flags)
+        { }
+        		
 		override public IContext SetContextView(object view)
 		{
             contextView = view;
-			if (contextView == null)
-			{
-				throw new ContextException("MCSContext requires a ContextView of type MonoBehaviour", ContextExceptionType.NO_CONTEXT_VIEW);
-			}
+            //if (contextView == null)
+            //{
+            //    throw new ContextException("MCSContext requires a ContextView of type MonoBehaviour", ContextExceptionType.NO_CONTEXT_VIEW);
+            //}
 			return this;
 		}
 
@@ -224,9 +212,9 @@ namespace strange.extensions.context.impl
 			injectionBinder.Bind<IContext>().ToValue(this).ToName(ContextKeys.CONTEXT);
 			injectionBinder.Bind<ICommandBinder>().To<EventCommandBinder>().ToSingleton();
 			//This binding is for local dispatchers
-			injectionBinder.Bind<IEventDispatcher>().To<EventDispatcher>();
+			injectionBinder.Bind<IEventDispatcher>().To<GhostbitEventDispatcher>();
 			//This binding is for the common system bus
-			injectionBinder.Bind<IEventDispatcher>().To<EventDispatcher>().ToSingleton().ToName(ContextKeys.CONTEXT_DISPATCHER);
+            injectionBinder.Bind<IEventDispatcher>().To<GhostbitEventDispatcher>().ToSingleton().ToName(ContextKeys.CONTEXT_DISPATCHER);
 			injectionBinder.Bind<ISequencer>().To<EventSequencer>().ToSingleton();
 		}
 		
@@ -234,7 +222,10 @@ namespace strange.extensions.context.impl
 		{
 			base.instantiateCoreComponents();
 
-			injectionBinder.Bind<object>().ToValue(contextView).ToName(ContextKeys.CONTEXT_VIEW);
+            if (contextView != null)
+            {
+                injectionBinder.Bind<object>().ToValue(contextView).ToName(ContextKeys.CONTEXT_VIEW);
+            }
 			commandBinder = injectionBinder.GetInstance<ICommandBinder>() as ICommandBinder;
 			
 			dispatcher = injectionBinder.GetInstance<IEventDispatcher>(ContextKeys.CONTEXT_DISPATCHER) as IEventDispatcher;

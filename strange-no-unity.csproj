@@ -10,6 +10,8 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,6 +34,9 @@
     <RootNamespace>strange_no_unity</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NLog">
+      <HintPath>..\..\packages\NLog.3.2.0.0\lib\net35\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -63,8 +68,9 @@
     <Compile Include="StrangeIoC\scripts\strange\extensions\context\impl\ContextException.cs" />
     <Compile Include="StrangeIoC\scripts\strange\extensions\context\impl\CrossContext.cs" />
     <Compile Include="StrangeIoC\scripts\strange\extensions\context\impl\CrossContextBridge.cs" />
-    <Compile Include="StrangeIoC\scripts\strange\extensions\context\impl\MCSContext.cs" />
+    <None Include="packages.config" />
     <None Include="StrangeIoC\scripts\strange\extensions\context\impl\MVCSContext.cs" />
+    <Compile Include="StrangeIoC\scripts\strange\extensions\context\impl\ViewlessContext.cs" />
     <Compile Include="StrangeIoC\scripts\strange\extensions\dispatcher\api\DispatcherExceptionType.cs" />
     <Compile Include="StrangeIoC\scripts\strange\extensions\dispatcher\api\IDispatcher.cs" />
     <Compile Include="StrangeIoC\scripts\strange\extensions\dispatcher\api\ITriggerable.cs" />
@@ -77,6 +83,7 @@
     <Compile Include="StrangeIoC\scripts\strange\extensions\dispatcher\eventdispatcher\impl\EventBinding.cs" />
     <Compile Include="StrangeIoC\scripts\strange\extensions\dispatcher\eventdispatcher\impl\EventDispatcher.cs" />
     <Compile Include="StrangeIoC\scripts\strange\extensions\dispatcher\eventdispatcher\impl\EventDispatcherException.cs" />
+    <Compile Include="StrangeIoC\scripts\strange\extensions\dispatcher\eventdispatcher\impl\GhostbitEventDispatcher.cs" />
     <Compile Include="StrangeIoC\scripts\strange\extensions\dispatcher\eventdispatcher\impl\TmEvent.cs" />
     <Compile Include="StrangeIoC\scripts\strange\extensions\dispatcher\impl\DispatcherException.cs" />
     <Compile Include="StrangeIoC\scripts\strange\extensions\injector\api\ICrossContextInjectionBinder.cs" />
@@ -139,4 +146,11 @@
   <ProjectExtensions>
     <VisualStudio AllowExistingFolder="true" />
   </ProjectExtensions>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
 </Project>
